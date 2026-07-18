@@ -1,4 +1,4 @@
-import { AccountStatus } from "src/domain/account/accountStatus.type"
+import { AccountStatus } from "src/domain/account/account-status.type"
 
 export interface OpenAccountOutput {
     accountId: string
@@ -7,4 +7,3 @@ export interface OpenAccountOutput {
     status: AccountStatus
     createdAt: Date
 }
-    
