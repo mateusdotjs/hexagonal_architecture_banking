@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto"
 import { Money } from "../shared/money.vo"
-import { AccountStatus } from "./accountStatus.type"
+import { AccountStatus } from "./account-status.type"
 
 export class Account {
     readonly id: string
@@ -73,5 +73,15 @@ export class Account {
 
     getStatus(): AccountStatus {
         return this.status
+    }
+
+    close() {
+        if (this.status === AccountStatus.CLOSED) {
+            throw new Error("Account is already closed");
+        }
+        if (!this.balance.isZero()) {
+            throw new Error("Account balance must be zero to close");
+        }
+        this.status = AccountStatus.CLOSED;
     }
 }
