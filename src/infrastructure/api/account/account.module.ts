@@ -3,10 +3,13 @@ import { AccountController } from "./account.controller";
 import { OpenAccountUseCase } from "src/application/use-cases/open-account/open-account.use-case";
 import { IAccountRepository } from "src/domain/account/account.repository";
 import { ACCOUNT_REPOSITORY_TOKEN } from "src/domain/account/account.repository.token";
-import { InMemoryAccountRepository } from "src/infrastructure/persistence/in-memory/in-memory-account.repository";
+import { DrizzleAccountRepository } from "src/infrastructure/persistence/drizzle/repositories/drizzle-account.repository";
+import { DrizzleDB } from "src/infrastructure/persistence/drizzle/drizzle";
+import { DRIZZLE_DATABASE_TOKEN } from "src/infrastructure/persistence/drizzle/drizzle.token";
+import { DrizzleModule } from "src/infrastructure/persistence/drizzle/drizzle.module";
 
 @Module({
-    imports: [],
+    imports: [DrizzleModule],
     controllers: [AccountController],
     providers: [{
         provide: OpenAccountUseCase,
@@ -17,7 +20,10 @@ import { InMemoryAccountRepository } from "src/infrastructure/persistence/in-mem
     },
     {
         provide: ACCOUNT_REPOSITORY_TOKEN,
-        useClass: InMemoryAccountRepository,
+        useFactory: (db: DrizzleDB) => {
+            return new DrizzleAccountRepository(db);
+        },
+        inject: [DRIZZLE_DATABASE_TOKEN]
     }],
 })
 export class AccountModule { }
