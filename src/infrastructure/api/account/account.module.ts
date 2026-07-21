@@ -19,6 +19,9 @@ import { DrizzleTransactionRepository } from "src/infrastructure/persistence/dri
 import { DrizzleDB } from "src/infrastructure/persistence/drizzle/drizzle";
 import { DRIZZLE_DATABASE_TOKEN } from "src/infrastructure/persistence/drizzle/drizzle.token";
 import { DrizzleModule } from "src/infrastructure/persistence/drizzle/drizzle.module";
+import { TransactionContext } from "src/infrastructure/persistence/drizzle/transaction-context";
+import { IUnitOfWork } from "src/application/ports/persistence/unit-of-work";
+import { UNIT_OF_WORK_TOKEN } from "src/application/ports/persistence/unit-of-work.token";
 
 @Module({
     imports: [DrizzleModule],
@@ -26,48 +29,48 @@ import { DrizzleModule } from "src/infrastructure/persistence/drizzle/drizzle.mo
     providers: [
         {
             provide: OpenAccountUseCase,
-            useFactory: (accountRepository: IAccountRepository) => new OpenAccountUseCase(accountRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, unitOfWork: IUnitOfWork) => new OpenAccountUseCase(accountRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: DepositMoneyUseCase,
-            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository) => new DepositMoneyUseCase(accountRepository, transactionRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository, unitOfWork: IUnitOfWork) => new DepositMoneyUseCase(accountRepository, transactionRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: WithdrawMoneyUseCase,
-            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository) => new WithdrawMoneyUseCase(accountRepository, transactionRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository, unitOfWork: IUnitOfWork) => new WithdrawMoneyUseCase(accountRepository, transactionRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: TransferMoneyUseCase,
-            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository) => new TransferMoneyUseCase(accountRepository, transactionRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository, unitOfWork: IUnitOfWork) => new TransferMoneyUseCase(accountRepository, transactionRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: GetBalanceUseCase,
-            useFactory: (accountRepository: IAccountRepository) => new GetBalanceUseCase(accountRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, unitOfWork: IUnitOfWork) => new GetBalanceUseCase(accountRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: GetStatementUseCase,
-            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository) => new GetStatementUseCase(accountRepository, transactionRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, transactionRepository: ITransactionRepository, unitOfWork: IUnitOfWork) => new GetStatementUseCase(accountRepository, transactionRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, TRANSACTION_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: CloseAccountUseCase,
-            useFactory: (accountRepository: IAccountRepository) => new CloseAccountUseCase(accountRepository),
-            inject: [ACCOUNT_REPOSITORY_TOKEN]
+            useFactory: (accountRepository: IAccountRepository, unitOfWork: IUnitOfWork) => new CloseAccountUseCase(accountRepository, unitOfWork),
+            inject: [ACCOUNT_REPOSITORY_TOKEN, UNIT_OF_WORK_TOKEN]
         },
         {
             provide: ACCOUNT_REPOSITORY_TOKEN,
-            useFactory: (db: DrizzleDB) => new DrizzleAccountRepository(db),
-            inject: [DRIZZLE_DATABASE_TOKEN]
+            useFactory: (db: DrizzleDB, transactionContext: TransactionContext) => new DrizzleAccountRepository(db, transactionContext),
+            inject: [DRIZZLE_DATABASE_TOKEN, TransactionContext]
         },
         {
             provide: TRANSACTION_REPOSITORY_TOKEN,
-            useFactory: (db: DrizzleDB) => new DrizzleTransactionRepository(db),
-            inject: [DRIZZLE_DATABASE_TOKEN]
+            useFactory: (db: DrizzleDB, transactionContext: TransactionContext) => new DrizzleTransactionRepository(db, transactionContext),
+            inject: [DRIZZLE_DATABASE_TOKEN, TransactionContext]
         }
     ],
 })
