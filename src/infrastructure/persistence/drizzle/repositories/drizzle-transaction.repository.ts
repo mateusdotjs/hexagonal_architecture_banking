@@ -5,16 +5,19 @@ import { transactionTable } from "../schema/transaction.schema";
 import { TransactionMapper } from "../mappers/transaction.mapper";
 import { DrizzleDB } from "../drizzle";
 import { TransactionContext } from "../transaction-context";
+import { BaseDrizzleRepository } from "./base-drizzle.repository";
 
-export class DrizzleTransactionRepository implements ITransactionRepository {
+export class DrizzleTransactionRepository extends BaseDrizzleRepository implements ITransactionRepository {
 
     constructor(
-        private readonly db: DrizzleDB,
-        private readonly transactionContext: TransactionContext,
-    ) { }
+        db: DrizzleDB,
+        transactionContext: TransactionContext,
+    ) {
+        super(db, transactionContext)
+    }
 
     async save(transaction: Transaction): Promise<Transaction> {
-        const [created] = await this.connection
+        const [created] = await this.getConnection()
             .insert(transactionTable)
             .values(
                 TransactionMapper.toPersistence(transaction),
@@ -26,7 +29,7 @@ export class DrizzleTransactionRepository implements ITransactionRepository {
     }
 
     async findByAccountId(accountId: string): Promise<Transaction[]> {
-        const rows = await this.connection
+        const rows = await this.getConnection()
             .select()
             .from(transactionTable)
             .where(

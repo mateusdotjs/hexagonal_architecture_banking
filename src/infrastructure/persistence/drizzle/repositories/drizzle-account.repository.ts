@@ -5,17 +5,21 @@ import { accountTable } from "../schema/account.schema";
 import { AccountMapper } from "../mappers/account.mapper";
 import { DrizzleDB } from "../drizzle";
 import { TransactionContext } from "../transaction-context";
+import { BaseDrizzleRepository } from "./base-drizzle.repository";
 
 export class DrizzleAccountRepository
+    extends BaseDrizzleRepository
     implements IAccountRepository {
 
     constructor(
-        private readonly db: DrizzleDB,
-        private readonly transactionContext: TransactionContext,
-    ) { }
+        db: DrizzleDB,
+        transactionContext: TransactionContext,
+    ) {
+        super(db, transactionContext);
+    }
 
     async save(account: Account): Promise<Account> {
-        const [created] = await this.connection
+        const [created] = await this.getConnection()
             .insert(accountTable)
             .values(
                 AccountMapper.toPersistence(account),
@@ -26,7 +30,7 @@ export class DrizzleAccountRepository
     }
 
     async update(account: Account): Promise<Account> {
-        const [updated] = await this.connection
+        const [updated] = await this.getConnection()
             .update(accountTable)
             .set(
                 AccountMapper.toPersistence(account),
@@ -38,7 +42,7 @@ export class DrizzleAccountRepository
     }
 
     async findById(id: string): Promise<Account | null> {
-        const [row] = await this.connection
+        const [row] = await this.getConnection()
             .select()
             .from(accountTable)
             .where(eq(accountTable.id, id));
@@ -48,14 +52,5 @@ export class DrizzleAccountRepository
         }
 
         return AccountMapper.toDomain(row);
-    }
-
-    private get connection() {
-
-        return (
-            this.transactionContext.getTransaction()
-            ?? this.db
-        );
-
     }
 }
