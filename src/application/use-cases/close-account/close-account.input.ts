@@ -1,3 +1,3 @@
 export interface CloseAccountInput {
-    accountId: string;
+  accountId: string;
 }

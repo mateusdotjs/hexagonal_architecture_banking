@@ -1,3 +1,3 @@
 export class DepositDto {
-    amount: string;
+  amount: string;
 }

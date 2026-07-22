@@ -1,4 +1,4 @@
 export interface DepositMoneyInput {
-    accountId: string;
-    amount: string;
+  accountId: string;
+  amount: string;
 }

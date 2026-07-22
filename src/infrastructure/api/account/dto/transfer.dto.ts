@@ -1,4 +1,4 @@
 export class TransferDto {
-    targetAccountId: string;
-    amount: string;
+  targetAccountId: string;
+  amount: string;
 }

@@ -1,5 +1,5 @@
 export interface DepositMoneyOutput {
-    transactionId: string;
-    accountId: string;
-    balance: string;
+  transactionId: string;
+  accountId: string;
+  balance: string;
 }

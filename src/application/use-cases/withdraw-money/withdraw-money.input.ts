@@ -1,4 +1,4 @@
 export interface WithdrawMoneyInput {
-    accountId: string;
-    amount: string;
+  accountId: string;
+  amount: string;
 }

@@ -1,87 +1,87 @@
-import { randomUUID } from "crypto"
-import { Money } from "../shared/money.vo"
-import { AccountStatus } from "./account-status.type"
+import { randomUUID } from 'crypto';
+import { Money } from '../shared/money.vo';
+import { AccountStatus } from './account-status.type';
 
 export class Account {
-    readonly id: string
-    readonly ownerId: string
-    private balance: Money
-    private status: AccountStatus
-    readonly createdAt: Date
+  readonly id: string;
+  readonly ownerId: string;
+  private balance: Money;
+  private status: AccountStatus;
+  readonly createdAt: Date;
 
-    constructor(
-        id: string,
-        ownerId: string,
-        balance: Money,
-        status: AccountStatus,
-        createdAt: Date
-    ) {
-        this.id = id
-        this.ownerId = ownerId
-        this.balance = balance
-        this.status = status
-        this.createdAt = createdAt
+  constructor(
+    id: string,
+    ownerId: string,
+    balance: Money,
+    status: AccountStatus,
+    createdAt: Date,
+  ) {
+    this.id = id;
+    this.ownerId = ownerId;
+    this.balance = balance;
+    this.status = status;
+    this.createdAt = createdAt;
+  }
+
+  static open(ownerId: string): Account {
+    return new Account(
+      randomUUID(),
+      ownerId,
+      Money.of('0'),
+      AccountStatus.OPEN,
+      new Date(),
+    );
+  }
+
+  deposit(amount: Money) {
+    this.ensureAccountIsOpen();
+
+    if (amount.isNegative()) {
+      throw new Error('Amount must be positive');
     }
 
-    static open(ownerId: string): Account {
-        return new Account(
-            randomUUID(),
-            ownerId,
-            Money.of("0"),
-            AccountStatus.OPEN,
-            new Date()
-        )
+    if (amount.isZero()) {
+      throw new Error('Amount must be greater than zero');
     }
 
-    deposit(amount: Money) {
-        this.ensureAccountIsOpen()
+    this.balance = this.balance.add(amount);
+  }
 
-        if (amount.isNegative()) {
-            throw new Error("Amount must be positive");
-        }
+  withdraw(amount: Money) {
+    this.ensureAccountIsOpen();
 
-        if (amount.isZero()) {
-            throw new Error("Amount must be greater than zero");
-        }
-
-        this.balance = this.balance.add(amount)
+    if (this.balance.isGreaterThan(amount)) {
+      throw new Error('Insufficient balance');
     }
 
-    withdraw(amount: Money) {
-        this.ensureAccountIsOpen()
-
-        if (this.balance.isGreaterThan(amount)) {
-            throw new Error("Insufficient balance");
-        }
-
-        if (amount.isZero()) {
-            throw new Error("Amount must be greater than zero");
-        }
-
-        this.balance = this.balance.subtract(amount)
+    if (amount.isZero()) {
+      throw new Error('Amount must be greater than zero');
     }
 
-    getBalance(): Money {
-        return this.balance
-    }
+    this.balance = this.balance.subtract(amount);
+  }
 
-    private ensureAccountIsOpen() {
-        if (this.status !== AccountStatus.OPEN) {
-            throw new Error("Account is not open");
-        }
-    }
+  getBalance(): Money {
+    return this.balance;
+  }
 
-    getStatus(): AccountStatus {
-        return this.status
+  private ensureAccountIsOpen() {
+    if (this.status !== AccountStatus.OPEN) {
+      throw new Error('Account is not open');
     }
+  }
 
-    close() {
-        if (this.status === AccountStatus.CLOSED) {
-            throw new Error("Account is already closed");
-        }
-        if (!this.balance.isZero()) {
-            throw new Error("Account balance must be zero to close");
-        }
-        this.status = AccountStatus.CLOSED;
+  getStatus(): AccountStatus {
+    return this.status;
+  }
+
+  close() {
+    if (this.status === AccountStatus.CLOSED) {
+      throw new Error('Account is already closed');
     }
+    if (!this.balance.isZero()) {
+      throw new Error('Account balance must be zero to close');
+    }
+    this.status = AccountStatus.CLOSED;
+  }
 }

@@ -1,4 +1,4 @@
 export interface CloseAccountOutput {
-    accountId: string;
-    status: string;
+  accountId: string;
+  status: string;
 }

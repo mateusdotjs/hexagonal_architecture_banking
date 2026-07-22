@@ -1,3 +1,3 @@
 export interface GetBalanceInput {
-    accountId: string;
+  accountId: string;
 }

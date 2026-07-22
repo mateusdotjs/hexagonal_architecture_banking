@@ -1,3 +1,3 @@
 export interface GetStatementInput {
-    accountId: string;
+  accountId: string;
 }

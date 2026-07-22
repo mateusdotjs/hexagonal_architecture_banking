@@ -1,76 +1,60 @@
-import { CloseAccountUseCase } from "./close-account.use-case";
+import { CloseAccountUseCase } from './close-account.use-case';
 
-import { Account } from "src/domain/account/account";
-import { AccountStatus } from "src/domain/account/account-status.type";
-import { IAccountRepository } from "src/domain/account/account.repository";
-import { IUnitOfWork } from "src/application/ports/persistence/unit-of-work";
+import { Account } from 'src/domain/account/account';
+import { AccountStatus } from 'src/domain/account/account-status.type';
+import { IAccountRepository } from 'src/domain/account/account.repository';
+import { IUnitOfWork } from 'src/application/ports/persistence/unit-of-work';
 
-describe("CloseAccountUseCase", () => {
+describe('CloseAccountUseCase', () => {
+  let accountRepository: IAccountRepository;
+  let unitOfWork: IUnitOfWork;
+  let useCase: CloseAccountUseCase;
 
-    let accountRepository: IAccountRepository;
-    let unitOfWork: IUnitOfWork;
-    let useCase: CloseAccountUseCase;
+  beforeEach(() => {
+    accountRepository = {
+      save: jest.fn(),
+      update: jest.fn(),
+      findById: jest.fn(),
+    };
 
-    beforeEach(() => {
+    unitOfWork = {
+      execute: jest.fn(async (work) => work()),
+    };
 
-        accountRepository = {
-            save: jest.fn(),
-            update: jest.fn(),
-            findById: jest.fn(),
-        };
+    useCase = new CloseAccountUseCase(accountRepository, unitOfWork);
+  });
 
-        unitOfWork = {
-            execute: jest.fn(async (work) => work()),
-        };
+  it('should close an account with zero balance', async () => {
+    const account = Account.open('owner-123');
 
-        useCase = new CloseAccountUseCase(
-            accountRepository,
-            unitOfWork,
-        );
+    accountRepository.findById = jest.fn().mockResolvedValue(account);
 
-    });
+    const input = {
+      accountId: account.id,
+    };
 
-    it("should close an account with zero balance", async () => {
+    const output = await useCase.execute(input);
 
-        const account = Account.open("owner-123");
+    expect(unitOfWork.execute).toHaveBeenCalledTimes(1);
 
-        accountRepository.findById = jest.fn().mockResolvedValue(account);
+    expect(accountRepository.findById).toHaveBeenCalledWith(account.id);
 
-        const input = {
-            accountId: account.id,
-        };
+    expect(accountRepository.update).toHaveBeenCalledTimes(1);
 
-        const output = await useCase.execute(input);
+    expect(output.accountId).toBe(account.id);
 
-        expect(unitOfWork.execute).toHaveBeenCalledTimes(1);
+    expect(output.status).toBe(AccountStatus.CLOSED);
+  });
 
-        expect(accountRepository.findById)
-            .toHaveBeenCalledWith(account.id);
+  it('should throw when account does not exist', async () => {
+    accountRepository.findById = jest.fn().mockResolvedValue(null);
 
-        expect(accountRepository.update)
-            .toHaveBeenCalledTimes(1);
+    await expect(
+      useCase.execute({
+        accountId: 'invalid-id',
+      }),
+    ).rejects.toThrow('Account not found');
 
-        expect(output.accountId).toBe(account.id);
-
-        expect(output.status).toBe(AccountStatus.CLOSED);
-
-    });
-
-    it("should throw when account does not exist", async () => {
-
-        accountRepository.findById = jest.fn().mockResolvedValue(null);
-
-        await expect(
-
-            useCase.execute({
-                accountId: "invalid-id",
-            }),
-
-        ).rejects.toThrow("Account not found");
-
-        expect(accountRepository.update)
-            .not.toHaveBeenCalled();
-
-    });
-
+    expect(accountRepository.update).not.toHaveBeenCalled();
+  });
 });

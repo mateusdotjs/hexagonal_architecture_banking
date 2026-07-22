@@ -1,3 +1,3 @@
 export interface OpenAccountInput {
-    ownerId: string;
+  ownerId: string;
 }

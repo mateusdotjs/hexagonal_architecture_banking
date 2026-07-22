@@ -1,4 +1,4 @@
 export interface GetBalanceOutput {
-    accountId: string;
-    balance: string;
+  accountId: string;
+  balance: string;
 }

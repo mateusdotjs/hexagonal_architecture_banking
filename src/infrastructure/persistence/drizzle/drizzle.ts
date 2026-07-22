@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
 export function createDrizzle(connectionString: string) {
   const pool = new Pool({
@@ -10,4 +10,3 @@ export function createDrizzle(connectionString: string) {
 }
 
 export type DrizzleDB = ReturnType<typeof createDrizzle>;
-

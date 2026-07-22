@@ -1,5 +1,5 @@
 export interface TransferMoneyOutput {
-    transactionOutId: string;
-    transactionInId: string;
-    sourceBalance: string;
+  transactionOutId: string;
+  transactionInId: string;
+  sourceBalance: string;
 }
