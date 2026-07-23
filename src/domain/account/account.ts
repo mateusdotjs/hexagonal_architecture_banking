@@ -50,12 +50,12 @@ export class Account {
   withdraw(amount: Money) {
     this.ensureAccountIsOpen();
 
-    if (this.balance.isGreaterThan(amount)) {
-      throw new Error('Insufficient balance');
-    }
-
     if (amount.isZero()) {
       throw new Error('Amount must be greater than zero');
+    }
+
+    if (amount.isGreaterThan(this.balance)) {
+      throw new Error('Insufficient balance');
     }
 
     this.balance = this.balance.subtract(amount);
