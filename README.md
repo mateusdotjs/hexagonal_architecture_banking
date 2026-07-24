@@ -83,7 +83,6 @@ The domain and application layers have **zero knowledge** of NestJS decorators, 
 
 - `DrizzleAccountRepository`, `DrizzleTransactionRepository`
 - `DrizzleUnitOfWork`
-- `AccountController`
 
 Swapping Drizzle for another persistence mechanism would require changes only in the infrastructure layer.
 
